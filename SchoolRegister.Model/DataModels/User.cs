@@ -10,6 +10,12 @@ namespace SchoolRegister.Model.DataModels
         public string LastName { get; set; }
         public DateTime RegistrationDate { get; set; }
 
-        public User() { }
+        // Dodaj te właściwości:
+        public int? GroupId { get; set; }
+        public Group Group { get; set; }
+
+        public int? ParentId { get; set; }
+        public Parent Parent { get; set; }
     }
+
 }

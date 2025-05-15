@@ -31,51 +31,52 @@ namespace SchoolRegister.DAL.EF
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            // Fluent API commands
+
+            // TPH - dziedziczenie użytkowników w jednej tabeli z dyskryminatorem UserType
             modelBuilder.Entity<User>()
-            .ToTable("AspNetUsers")
-            .HasDiscriminator<int>("UserType")
-            .HasValue<User>((int)RoleValue.User)
-            .HasValue<Student>((int)RoleValue.Student)
-            .HasValue<Parent>((int)RoleValue.Parent)
-            .HasValue<Teacher>((int)RoleValue.Teacher);
+                .ToTable("AspNetUsers")
+                .HasDiscriminator<int>("UserType")
+                .HasValue<User>((int)RoleValue.User)
+                .HasValue<Student>((int)RoleValue.Student)
+                .HasValue<Parent>((int)RoleValue.Parent)
+                .HasValue<Teacher>((int)RoleValue.Teacher);
 
-            // Konfiguracja Student-Parent (wielu studentów może mieć jednego rodzica)
-            modelBuilder.Entity<Student>()
-                .HasOne(s => s.Parent)
-                .WithMany() // Jeśli chcesz mieć nawigację w Parent: .WithMany(p => p.Children)
-                .HasForeignKey(s => s.ParentId)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            // Konfiguracja Student-Group (wielu studentów w jednej grupie)
-            modelBuilder.Entity<Student>()
-                .HasOne(s => s.Group)
+            // Relacja User-Group (wiele użytkowników w jednej grupie)
+            modelBuilder.Entity<User>()
+                .HasOne<SchoolRegister.Model.DataModels.Group>(u => u.Group)
                 .WithMany(g => g.Students)
-                .HasForeignKey(s => s.GroupId)
+                .HasForeignKey(u => u.GroupId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // Konfiguracja Grade-Student
+            // Self-referencja User-Parent (jeden rodzic, wiele dzieci)
+            modelBuilder.Entity<User>()
+                .HasOne<Parent>(u => u.Parent)
+                .WithMany(p => p.Children)
+                .HasForeignKey(u => u.ParentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Relacja Grade-Student
             modelBuilder.Entity<Grade>()
                 .HasOne(g => g.Student)
                 .WithMany(s => s.Grades)
                 .HasForeignKey(g => g.StudentId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Konfiguracja Grade-Subject
+            // Relacja Grade-Subject
             modelBuilder.Entity<Grade>()
                 .HasOne(g => g.Subject)
                 .WithMany(s => s.Grades)
                 .HasForeignKey(g => g.SubjectId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Konfiguracja Subject-Teacher
+            // Relacja Subject-Teacher
             modelBuilder.Entity<Subject>()
                 .HasOne(s => s.Teacher)
                 .WithMany(t => t.Subjects)
                 .HasForeignKey(s => s.TeacherId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // Konfiguracja SubjectGroup (wiele do wielu: Subject <-> Group)
+            // Tabela pośrednicząca SubjectGroup (wiele-do-wielu)
             modelBuilder.Entity<SubjectGroup>()
                 .HasKey(sg => new { sg.SubjectId, sg.GroupId });
 
@@ -89,5 +90,6 @@ namespace SchoolRegister.DAL.EF
                 .WithMany(g => g.SubjectGroups)
                 .HasForeignKey(sg => sg.GroupId);
         }
+
     }
 }

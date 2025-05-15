@@ -4,15 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace SchoolRegister.Model.DataModels
 {
     public class Parent : User
     {
-        public IList<Student> Students { get; set; }
-
-        public Parent()
-        {
-            Students = new List<Student>();
-        }
+        public ICollection<Student> Children { get; set; } = new List<Student>();
+        public Parent() { }
     }
 }
