@@ -1,20 +1,20 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SchoolRegister.DAL.EF;
 using SchoolRegister.Model.DataModels;
 using SchoolRegister.Services.Interfaces;
 using SchoolRegister.ViewModels.VM;
-namespace SchoolRegister.Services.ConcreteServices
+
+namespace SchoolRegister.Services.Services
 {
     public class SubjectService : BaseService, ISubjectService
     {
-        public SubjectService(ApplicationDbContext dbContext, IMapper mapper, ILogger logger)
-        : base(dbContext, mapper, logger) { }
+        public SubjectService(ApplicationDbContext dbContext, IMapper mapper, ILogger logger) : base(dbContext, mapper, logger) { }
+
         public SubjectVm AddOrUpdateSubject(AddOrUpdateSubjectVm addOrUpdateVm)
         {
             try
@@ -36,12 +36,13 @@ namespace SchoolRegister.Services.ConcreteServices
                 throw;
             }
         }
+
         public SubjectVm GetSubject(Expression<Func<Subject, bool>> filterExpression)
         {
             try
             {
                 if (filterExpression == null)
-                    throw new ArgumentNullException($" FilterExpression is null");
+                    throw new ArgumentNullException($"FilterExpression is null");
                 var subjectEntity = DbContext.Subjects.FirstOrDefault(filterExpression);
                 var subjectVm = Mapper.Map<SubjectVm>(subjectEntity);
                 return subjectVm;
@@ -52,6 +53,7 @@ namespace SchoolRegister.Services.ConcreteServices
                 throw;
             }
         }
+
         public IEnumerable<SubjectVm> GetSubjects(Expression<Func<Subject, bool>> filterExpression = null)
         {
             try
@@ -68,5 +70,26 @@ namespace SchoolRegister.Services.ConcreteServices
                 throw;
             }
         }
+
+        public bool RemoveSubject(Expression<Func<Subject, bool>> filterExpression)
+        {
+            try
+            {
+                if (filterExpression == null)
+                    throw new ArgumentNullException($"FilterExpression is null");
+                var subjectEntity = DbContext.Subjects.FirstOrDefault(filterExpression);
+                if (subjectEntity == null)
+                    throw new ArgumentNullException($"Subject not found");
+                DbContext.Subjects.Remove(subjectEntity);
+                DbContext.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, ex.Message);
+                throw;
+            }
+        }
     }
+
 }

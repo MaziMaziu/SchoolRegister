@@ -1,10 +1,23 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
-using SchoolRegister.DAL.EF;
+using Microsoft.Extensions.Localization;
+
 using SchoolRegister.Model.DataModels;
+
 using SchoolRegister.Services.Configuration.AutoMapperProfiles;
+using SchoolRegister.Services.Interfaces;
+using SchoolRegister.Web.Controllers;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
+using SchoolRegister.DAL.EF;
+using SchoolRegister.Services.Services;
+using System.Net.Mail;
+
+
 var builder = WebApplication.CreateBuilder(args);
-// Add services to the container.
+// Add services to the container
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddAutoMapper(typeof(MainProfile));
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -16,7 +29,31 @@ builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfi
 .AddUserManager<UserManager<User>>()
 .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddTransient(typeof(ILogger), typeof(Logger<Program>));
-builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IStringLocalizer, StringLocalizer<BaseController>>();
+builder.Services.AddScoped<ISubjectService, SubjectService>();
+builder.Services.AddScoped<IGradeService, GradeService>();
+builder.Services.AddScoped<IGroupService, GroupService>();
+builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<ITeacherService, TeacherService>();
+builder.Services.AddScoped<IEmailSenderService, EmailSenderService>();
+builder.Services.AddScoped<SmtpClient>(provider => new SmtpClient("smtp.example.com"));
+
+var supportedCultures = new[] { "en", "pl-PL" };
+builder.Services.Configure<RequestLocalizationOptions>(options => {
+    options.SetDefaultCulture(supportedCultures[0])
+    .AddSupportedCultures(supportedCultures)
+    .AddSupportedUICultures(supportedCultures);
+});
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+builder.Services.AddControllersWithViews()
+
+.AddRazorRuntimeCompilation()
+.AddViewLocalization()
+.AddDataAnnotationsLocalization();
+builder.Services.AddRazorPages()
+.AddRazorRuntimeCompilation()
+.AddViewLocalization()
+.AddDataAnnotationsLocalization();
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -34,6 +71,11 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+var localizationOption = new RequestLocalizationOptions()
+.SetDefaultCulture(supportedCultures[0])
+.AddSupportedCultures(supportedCultures)
+.AddSupportedUICultures(supportedCultures);
+app.UseRequestLocalization(localizationOption);
 app.MapControllerRoute(
 name: "default",
 pattern: "{controller=Home}/{action=Index}/{id?}");

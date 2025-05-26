@@ -43,53 +43,35 @@ namespace SchoolRegister.DAL.EF
 
             // Relacja User-Group (wiele użytkowników w jednej grupie)
             modelBuilder.Entity<User>()
-                .HasOne<SchoolRegister.Model.DataModels.Group>(u => u.Group)
-                .WithMany(g => g.Students)
-                .HasForeignKey(u => u.GroupId)
-                .OnDelete(DeleteBehavior.SetNull);
+                 .ToTable("AspNetUsers")
+                 .HasDiscriminator<int>("UserType")
+                 .HasValue<User>((int)RoleValue.User)
+                 .HasValue<Student>((int)RoleValue.Student)
+                 .HasValue<Parent>((int)RoleValue.Parent)
+                 .HasValue<Teacher>((int)RoleValue.Teacher);
 
-            // Self-referencja User-Parent (jeden rodzic, wiele dzieci)
-            modelBuilder.Entity<User>()
-                .HasOne<Parent>(u => u.Parent)
-                .WithMany(p => p.Children)
-                .HasForeignKey(u => u.ParentId)
+            modelBuilder.Entity<SubjectGroup>()
+               .HasKey(sg => new { sg.GroupId, sg.SubjectId });
+
+            modelBuilder.Entity<SubjectGroup>()
+                .HasOne(g => g.Group)
+                .WithMany(sg => sg.SubjectGroups)
+                .HasForeignKey(g => g.GroupId);
+
+            modelBuilder.Entity<SubjectGroup>()
+                .HasOne(s => s.Subject)
+                .WithMany(sg => sg.SubjectGroups)
+                .HasForeignKey(s => s.SubjectId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Relacja Grade-Student
             modelBuilder.Entity<Grade>()
-                .HasOne(g => g.Student)
-                .WithMany(s => s.Grades)
-                .HasForeignKey(g => g.StudentId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasKey(g => new { g.DateOfIssue, g.StudentId, g.SubjectId });
 
-            // Relacja Grade-Subject
             modelBuilder.Entity<Grade>()
-                .HasOne(g => g.Subject)
-                .WithMany(s => s.Grades)
-                .HasForeignKey(g => g.SubjectId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Relacja Subject-Teacher
-            modelBuilder.Entity<Subject>()
-                .HasOne(s => s.Teacher)
-                .WithMany(t => t.Subjects)
-                .HasForeignKey(s => s.TeacherId)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            // Tabela pośrednicząca SubjectGroup (wiele-do-wielu)
-            modelBuilder.Entity<SubjectGroup>()
-                .HasKey(sg => new { sg.SubjectId, sg.GroupId });
-
-            modelBuilder.Entity<SubjectGroup>()
-                .HasOne(sg => sg.Subject)
-                .WithMany(s => s.SubjectGroups)
-                .HasForeignKey(sg => sg.SubjectId);
-
-            modelBuilder.Entity<SubjectGroup>()
-                .HasOne(sg => sg.Group)
-                .WithMany(g => g.SubjectGroups)
-                .HasForeignKey(sg => sg.GroupId);
+                .HasOne(s => s.Student)
+                .WithMany(sg => sg.Grades)
+                .HasForeignKey(s => s.StudentId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
-
-    }
+        }
 }

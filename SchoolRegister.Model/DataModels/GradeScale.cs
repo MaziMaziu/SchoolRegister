@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace SchoolRegister.Model.DataModels
 {
-    public enum GradeScale
+    public enum GradeScale : int
     {
-        NDST = 2,
-        DST = 3,
-        DB = 4,
-        BDB = 5
+        NDST = 2, // F
+        DST = 3, // C
+        DB = 4, // B
+        BDB = 5  // A
     }
 }
