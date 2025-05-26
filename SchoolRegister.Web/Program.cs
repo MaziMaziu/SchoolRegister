@@ -3,18 +3,26 @@ using Microsoft.EntityFrameworkCore;
 using SchoolRegister.DAL.EF;
 using SchoolRegister.Model.DataModels;
 using SchoolRegister.Services.Configuration.AutoMapperProfiles;
+
+
+using Microsoft.AspNetCore.Identity.UI;
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddRazorPages();
+
 builder.Services.AddAutoMapper(typeof(MainProfile));
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = false)
-.AddRoles<Role>()
-.AddRoleManager<RoleManager<Role>>()
-.AddUserManager<UserManager<User>>()
-.AddEntityFrameworkStores<ApplicationDbContext>();
+// Zamieñ AddDefaultIdentity na AddIdentity:
+builder.Services.AddIdentity<User, Role>(options => options.SignIn.RequireConfirmedAccount = false)
+    .AddRoles<Role>()
+    .AddRoleManager<RoleManager<Role>>()
+    .AddUserManager<UserManager<User>>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
 builder.Services.AddTransient(typeof(ILogger), typeof(Logger<Program>));
 builder.Services.AddControllersWithViews();
 var app = builder.Build();
@@ -37,5 +45,7 @@ app.UseAuthorization();
 app.MapControllerRoute(
 name: "default",
 pattern: "{controller=Home}/{action=Index}/{id?}");
+
+
 app.MapRazorPages();
 app.Run();
