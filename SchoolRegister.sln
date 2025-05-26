@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchoolRegister.Web", "Schoo
 		{FB524335-F90B-48DB-9D3A-77FC667556AD} = {FB524335-F90B-48DB-9D3A-77FC667556AD}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchoolRegister.Tests", "SchoolRegister.Tests\SchoolRegister.Tests.csproj", "{AC09710E-498E-4063-9FE1-64AB48FF1A1F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{52B42EF9-2571-45B8-8D84-D64CAE90D87B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{52B42EF9-2571-45B8-8D84-D64CAE90D87B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{52B42EF9-2571-45B8-8D84-D64CAE90D87B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC09710E-498E-4063-9FE1-64AB48FF1A1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC09710E-498E-4063-9FE1-64AB48FF1A1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC09710E-498E-4063-9FE1-64AB48FF1A1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC09710E-498E-4063-9FE1-64AB48FF1A1F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
