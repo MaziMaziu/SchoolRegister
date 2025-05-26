@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.Extensions.Localization;
 using SchoolRegister.Services.Interfaces;
 using SchoolRegister.Services.Services;
+using System.Net.Mail;
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -18,8 +19,11 @@ builder.Services.AddRazorPages();
 builder.Services.AddAutoMapper(typeof(MainProfile));
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 options.UseSqlServer(connectionString));
+
+
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-// Zamieñ AddDefaultIdentity na AddIdentity:
+// Zamieï¿½ AddDefaultIdentity na AddIdentity:
 builder.Services.AddIdentity<User, Role>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddRoles<Role>()
     .AddRoleManager<RoleManager<Role>>()
@@ -28,6 +32,16 @@ builder.Services.AddIdentity<User, Role>(options => options.SignIn.RequireConfir
 
 builder.Services.AddTransient(typeof(ILogger), typeof(Logger<Program>));
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IEmailSenderService, EmailSenderService>();
+builder.Services.AddScoped<SmtpClient>(_ =>
+{
+    var config = builder.Configuration.GetSection("Email:Smtp");
+    return new SmtpClient(config["Host"], int.Parse(config["Port"] ?? "25"))
+    {
+        Credentials = new System.Net.NetworkCredential(config["Username"], config["Password"]),
+        EnableSsl = bool.Parse(config["EnableSsl"] ?? "true")
+    };
+});
 
 builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<IGradeService, GradeService>();
