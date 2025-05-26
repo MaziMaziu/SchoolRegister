@@ -6,10 +6,13 @@ using SchoolRegister.Services.Configuration.AutoMapperProfiles;
 
 
 using Microsoft.AspNetCore.Identity.UI;
+using Microsoft.Extensions.Localization;
+using SchoolRegister.Services.Interfaces;
+using SchoolRegister.Services.Services;
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
+builder.Services.AddAutoMapper(typeof(MainProfile));
 builder.Services.AddRazorPages();
 
 builder.Services.AddAutoMapper(typeof(MainProfile));
@@ -25,6 +28,12 @@ builder.Services.AddIdentity<User, Role>(options => options.SignIn.RequireConfir
 
 builder.Services.AddTransient(typeof(ILogger), typeof(Logger<Program>));
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<ISubjectService, SubjectService>();
+builder.Services.AddScoped<IGradeService, GradeService>();
+builder.Services.AddScoped<IGroupService, GroupService>();
+builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<ITeacherService, TeacherService>();
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
